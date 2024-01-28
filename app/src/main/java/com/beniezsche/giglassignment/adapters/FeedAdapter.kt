@@ -49,7 +49,9 @@ class FeedAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
             is NestedItemViewHolder -> {
                 val feedItem = feedItems[position]
-                holder.setImages(feedItem.imageLists!!)
+                feedItem.imageLists?.let {
+                    holder.setImages(it)
+                }
             }
         }
 

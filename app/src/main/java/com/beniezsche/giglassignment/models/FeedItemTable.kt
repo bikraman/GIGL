@@ -6,13 +6,12 @@ import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.annotations.SerializedName
 
-data class FeedItem(
-    @SerializedName("id")
+@Entity(tableName = "feed_table")
+data class FeedItemTable(
+    @PrimaryKey(autoGenerate = false)
     var id: Int = 0,
-    @SerializedName("type")
+    @ColumnInfo("type")
     var type: String,
-    @SerializedName("content")
+    @ColumnInfo("content")
     var content: String?,
-    @SerializedName("contents")
-    var imageLists: List<String>? = null
 )

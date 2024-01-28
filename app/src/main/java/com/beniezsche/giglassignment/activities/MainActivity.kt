@@ -1,9 +1,10 @@
-package com.beniezsche.giglassignment
+package com.beniezsche.giglassignment.activities
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.beniezsche.giglassignment.R
 import com.beniezsche.giglassignment.adapters.FeedAdapter
 import com.beniezsche.giglassignment.models.FeedItem
 import com.beniezsche.giglassignment.repository.ItemRepository

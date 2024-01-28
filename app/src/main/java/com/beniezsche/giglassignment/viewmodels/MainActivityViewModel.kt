@@ -11,10 +11,7 @@ import retrofit2.Call
 import retrofit2.Response
 
 class MainActivityViewModel(private val itemRepository: ItemRepository) : ViewModel() {
-
     fun getData() : LiveData<List<FeedItem>> {
         return itemRepository.getData()
     }
-
-
 }

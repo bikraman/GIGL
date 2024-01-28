@@ -3,17 +3,20 @@ package com.beniezsche.giglassignment.repository
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.beniezsche.giglassignment.database.ApplicationDatabase
 import com.beniezsche.giglassignment.database.DatabaseInstance
 import com.beniezsche.giglassignment.models.FeedItem
+import com.beniezsche.giglassignment.models.FeedItemTable
+import com.beniezsche.giglassignment.models.ImageItem
 import com.beniezsche.giglassignment.networking.RetrofitClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 class ItemRepository(private val applicationContext: Context) {
-
-    private val online = true
-
     fun getData() : LiveData<List<FeedItem>> {
 
         val database = DatabaseInstance.getDatabaseInstance(applicationContext)
@@ -21,28 +24,68 @@ class ItemRepository(private val applicationContext: Context) {
 
         val data = MutableLiveData<List<FeedItem>>()
 
-        if (online) {
+        retrofit?.getItems()?.enqueue(object : Callback<List<FeedItem>>{
+            override fun onResponse( call: Call<List<FeedItem>>, response: Response<List<FeedItem>> ) {
+                if (response.isSuccessful) {
+                    val res = response.body()
 
-            retrofit?.getItems()?.enqueue(object : Callback<List<FeedItem>>{
-                override fun onResponse(
-                    call: Call<List<FeedItem>>,
-                    response: Response<List<FeedItem>>
-                ) {
-                    if (response.isSuccessful)
-                        data.value = response.body()
+                    if (res != null) {
+                        data.value = res
+                        convertItemsToDbItemsAndInsertToDb(res, database)
+                    }
                 }
+            }
 
-                override fun onFailure(call: Call<List<FeedItem>>, t: Throwable) {
-                    data.value = null
+            override fun onFailure(call: Call<List<FeedItem>>, t: Throwable) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    val itemsFromDb = getItemsFromDb(database)
+                    data.postValue(itemsFromDb)
                 }
-
-            })
-        }
-        else {
-            val items = database.itemDao().getItems()
-            data.value = items
-        }
+            }
+        })
 
         return data
+    }
+
+
+    private fun convertItemsToDbItemsAndInsertToDb(res: List<FeedItem>, database: ApplicationDatabase) {
+
+        val tempImageList = ArrayList<ImageItem>()
+        val tempItemList = ArrayList<FeedItemTable>()
+
+        for (item in res) {
+            if (item.type == "nested_item") {
+                val isss = item.imageLists?.map {
+                    ImageItem(0 , item.id, it )
+                }
+                tempImageList.addAll(isss!!)
+            }
+
+            tempItemList.add(FeedItemTable(item.id, item.type, item.content ))
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            database.itemDao().insertAll(tempItemList)
+            database.imageDao().insertAll(tempImageList)
+        }
+
+    }
+
+    private fun getItemsFromDb(database: ApplicationDatabase) : List<FeedItem> {
+
+        val items = database.itemDao().getItems()
+
+        val feedItems = items.map { feedItemTable ->
+
+            var imageItems: List<String>? = null
+
+            if (feedItemTable.type == "nested_item") {
+                imageItems = database.imageDao().getNestedImages(feedItemTable.id).map { imageItem -> imageItem.image  }
+            }
+
+            FeedItem(feedItemTable.id, feedItemTable.type, feedItemTable.content, imageItems)
+        }
+
+        return feedItems
     }
 }
