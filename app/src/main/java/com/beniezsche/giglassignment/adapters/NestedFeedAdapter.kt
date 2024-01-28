@@ -6,7 +6,6 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.beniezsche.giglassignment.R
-import com.beniezsche.giglassignment.models.FeedItem
 import com.bumptech.glide.Glide
 
 class NestedFeedAdapter : RecyclerView.Adapter<NestedFeedAdapter.ItemViewHolder>() {
