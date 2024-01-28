@@ -34,8 +34,8 @@ class FeedAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when (position) {
-            1 -> NESTED_ITEM
+        return when (feedItems[position].type) {
+            "nested_item" -> NESTED_ITEM
             else -> ITEM
         }
     }

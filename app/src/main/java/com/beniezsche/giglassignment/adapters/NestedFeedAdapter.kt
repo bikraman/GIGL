@@ -16,7 +16,7 @@ class NestedFeedAdapter : RecyclerView.Adapter<NestedFeedAdapter.ItemViewHolder>
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
         val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.feed_item, parent, false);
+            .inflate(R.layout.feed_item_image, parent, false);
         return ItemViewHolder(view)
     }
 
