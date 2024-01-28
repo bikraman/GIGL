@@ -55,10 +55,10 @@ class ItemRepository(private val applicationContext: Context) {
 
         for (item in res) {
             if (item.type == "nested_item") {
-                val isss = item.imageLists?.map {
-                    ImageItem(0 , item.id, it )
+                val imgLst = item.imageLists?.mapIndexed { index, imageLink ->
+                    ImageItem( "${item.id}$index".toInt() , item.id, imageLink )
                 }
-                tempImageList.addAll(isss!!)
+                tempImageList.addAll(imgLst!!)
             }
 
             tempItemList.add(FeedItemTable(item.id, item.type, item.content ))
